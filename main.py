@@ -769,4 +769,4 @@ async def sales_by_items(data=None):
         raise HTTPException(status_code=400, detail="Invalid Request!")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8066)
