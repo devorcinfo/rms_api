@@ -2,17 +2,17 @@ import mysql.connector
 
 
 def get_mysql_connection():
-    MYSQL_HOST = 'rms-instance.c7oo4kk0qg0p.eu-north-1.rds.amazonaws.com'
-    MYSQL_USER = 'admin'
-    MYSQL_PASSWORD = 'Arun13052000'
+    MYSQL_HOST = '103.235.105.148'
+    MYSQL_USER = 'root'
+    MYSQL_PASSWORD = 'F199gDmr}qf@bZ{r'
     MYSQL_PORT = '3306'
-    MYSQL_DB = 'rmsdev'
+    MYSQL_DB = 'rms'
 
     # MYSQL_HOST = '127.0.0.1'
     # MYSQL_USER = 'root'
     # MYSQL_PASSWORD = 'root'
     # MYSQL_PORT = '3306'
-    # MYSQL_DB = 'rmsdev'
+    # MYSQL_DB = 'rms'
 
     conn_string = mysql.connector.connect(
         host=MYSQL_HOST,
@@ -67,3 +67,6 @@ def call_proc(proc, params):
     cur_res = cursor_login.callproc(proc, params)
     mysql_conn.commit()
     return cur_res
+
+
+

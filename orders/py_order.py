@@ -116,6 +116,7 @@ def fn_running_orderitems(request):
                 json_data = dict(list(zip(key, row)))
                 total_price = total_price + row[3]
                 order_items.append(json_data)
+        print(order_items, "---vc")
         return {"order_items": order_items, "total_price": total_price}
     except Exception as e:
         print("fn_running_orderitems " + str(e))
@@ -126,13 +127,22 @@ def fn_order_complete(request):
     try:
         (order_id, order_value, parcel_charge,
          c_gst, s_gst, total, discount, grand_total, d_percent, d_ref, d_person) = gen_bill_data(request)
-        py_connectivity.call_proc('sp_order_complete', (
+        res = py_connectivity.call_proc('sp_order_complete', (
             order_id, order_value, parcel_charge, c_gst, s_gst, total, discount, grand_total, d_percent, d_ref,
             d_person, None))
-        return {"val": 1, "message": "Order have been completed successfully"}
+        return {"val": 1, "message": "Order has been completed successfully", "output_detail": get_print_res(res[-1])}
     except Exception as e:
-        print("fn_order_status " + str(e))
+        print("fn_order_complete " + str(e))
         return {"val": 0, "message": "Something went wrong"}
+
+
+def get_print_res(order_id):
+    try:
+        res, key = py_connectivity.get_result(f"CALL rms.sp_orders_print_res(" + str(order_id) + ");")
+        return json.loads(res[0][0])
+    except Exception as e:
+        print("fn_remove_items " + str(e))
+        return []
 
 
 def fn_remove_items(request):

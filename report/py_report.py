@@ -35,6 +35,7 @@ def fn_order_report(request):
 
 def fn_order_report_items(request):
     dish_items = []
+    print(request, "---vvv")
     order_id = request.get('order_id')
     try:
         sql = (f"select dish_name, include_tax, sum(qty) qty, sum(price) price from v_order_items where "

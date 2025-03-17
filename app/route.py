@@ -144,6 +144,11 @@ def weight_type():
     return response
 
 
+def get_bluetooth_config():
+    response = py_filters.get_bluetooth_config()
+    return response
+
+
 def take_order(request):
     response = py_order.fn_take_order(request)
     return response

@@ -177,6 +177,16 @@ async def weight_type():
         raise HTTPException(status_code=400, detail="Invalid Request!")
 
 
+@app.get("/rms/filters/get_bluetooth_config")
+async def get_bluetooth_config():
+    try:
+        response = route.get_bluetooth_config()
+        return response
+    except Exception as e:
+        print("Exception in dish_type: " + str(e))
+        raise HTTPException(status_code=400, detail="Invalid Request!")
+
+
 @app.get("/rms/filters/hall")
 async def hall():
     try:

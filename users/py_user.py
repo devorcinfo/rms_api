@@ -7,7 +7,6 @@ def fn_user_list():
         sql = ("select user_id as id,user_id,priv_id,previlege_name,user_name,password,DATE_FORMAT(login_created_at, "
                "'%d %M %Y %r') as login_created_at,DATE_FORMAT(login_updated_at, '%d %M %Y %r') as login_updated_at,"
                "status from v_users where priv_id!=1")
-        print(sql)
         result, key = py_connectivity.get_result(sql)
         if result and len(result) > 0:
             for row in result:
@@ -20,7 +19,6 @@ def fn_user_list():
 
 
 def fn_user_manage(request):
-    print(request, "-b")
     user_id = request.get("user_id")
     user_name = request.get("user_name")
     password = request.get("password")

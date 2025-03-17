@@ -166,3 +166,22 @@ def fn_delete_dishtype(request):
     except Exception as e:
         print("fn_delete_dishtype " + str(e))
         return {"val": 0, "message": "Something went wrong"}
+
+
+def get_bluetooth_config():
+    try:
+        sql = "SELECT * FROM rms.printerconfig where status = 1;"
+        result, key = py_connectivity.get_result(sql)
+        lst = []
+        if result and len(result) > 0:
+            for row in result:
+                view_data = dict(zip(key, row))
+                view_data['label'] = view_data['device_name']
+                view_data['value'] = view_data['uid']
+                lst.append(view_data)
+            return {"bluetooth_config": lst}
+        else:
+            return {"bluetooth_config": lst}
+    except Exception as e:
+        print(str(e))
+        return {"bluetooth_config": []}
