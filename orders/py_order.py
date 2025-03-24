@@ -34,7 +34,6 @@ def fn_order_stat():
 
 
 def fn_take_order(request):
-    print(request)
     table_fk = request.get("table_fk")
     persons = request.get("persons")
     order_type = request.get("order_type")
@@ -56,11 +55,23 @@ def fn_take_order(request):
             'sp_take_order',
             (table_fk, persons, order_type, user_fk, refr, dish_data_json, None)
         )
-        return {"val": 1, "message": "Your order has been placed successfully", "order_id": order_id}
+        res = get_print_item_res(order_id)
+        return {"val": 1, "message": "Your order has been placed successfully", "order_id": order_id[-1],
+                "output_detail": res}
 
     except Exception as e:
         print("fn_take_order error: " + str(e))
         return {"val": 0, "message": "Something went wrong"}
+
+
+def get_print_item_res(order_id):
+    try:
+        qry = f"CALL rms.sp_orders_items_print_res(" + str(order_id[-1]) + ");"
+        res, key = py_connectivity.get_result(qry)
+        return json.loads(res[0][0])
+    except Exception as e:
+        print("get_print_item_res " + str(e))
+        return []
 
 
 def fn_add_order_items(request):
@@ -82,10 +93,20 @@ def fn_add_order_items(request):
             'sp_add_items',
             (order_id, dish_data_json)
         )
-        return {"val": 1, "message": "Items have been added successfully"}
+        return {"val": 1, "message": "Items have been added successfully", "output_detail": get_print_item_add_res(order_id)}
     except Exception as e:
         print("fn_take_order " + str(e))
         return {"val": 0, "message": "Something went wrong"}
+
+
+def get_print_item_add_res(order_id):
+    try:
+        qry = f"CALL rms.sp_orders_items_add_print_res(" + str(order_id) + ");"
+        res, key = py_connectivity.get_result(qry)
+        return json.loads(res[0][0])
+    except Exception as e:
+        print("get_print_item_add_res " + str(e))
+        return []
 
 
 def fn_running_orders():
@@ -141,7 +162,7 @@ def get_print_res(order_id):
         res, key = py_connectivity.get_result(f"CALL rms.sp_orders_print_res(" + str(order_id) + ");")
         return json.loads(res[0][0])
     except Exception as e:
-        print("fn_remove_items " + str(e))
+        print("get_print_res " + str(e))
         return []
 
 
@@ -150,17 +171,27 @@ def fn_remove_items(request):
     item_ids = request.get("item_ids")
     try:
         py_connectivity.call_proc('sp_orderitem_remove', (order_id, item_ids, None))
-        return {"val": 1, "message": "Order items have been removed successfully"}
+        return {"val": 1, "message": "Order items have been removed successfully", "output_detail": get_print_item_remove_res(order_id)}
     except Exception as e:
         print("fn_remove_items " + str(e))
         return {"val": 0, "message": "Something went wrong"}
+
+
+def get_print_item_remove_res(order_id):
+    try:
+        qry = f"CALL rms.sp_orders_item_remove_print_res(" + str(order_id) + ");"
+        res, key = py_connectivity.get_result(qry)
+        return json.loads(res[0][0])
+    except Exception as e:
+        print("get_print_item_remove_res " + str(e))
+        return []
 
 
 def fn_cancel_order(request):
     order_id = request.get("order_id")
     try:
         py_connectivity.call_proc('sp_order_cancel', (order_id, None))
-        return {"val": 1, "message": "Order have been cancelled successfully"}
+        return {"val": 1, "message": "Order have been cancelled successfully", "output_detail": get_print_item_remove_res(order_id)}
     except Exception as e:
         print("fn_remove_items " + str(e))
         return {"val": 0, "message": "Something went wrong"}
@@ -203,7 +234,7 @@ def gen_bill_data(request):
             # parcel_charge_per_item = cnt * base_parcel_charge
             # parcel_charge = parcel_charge + parcel_charge_per_item
         order_value = round(order_value, 2)
-        if int(order_type) <= 2:
+        if int(order_type) > 1:
             parcel_charge = (order_value/100) * 5  # 5 percentage
         tax = 2.5 / 100
         c_gst = round(order_value * tax, 2)

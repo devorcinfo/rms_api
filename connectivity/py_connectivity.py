@@ -2,17 +2,17 @@ import mysql.connector
 
 
 def get_mysql_connection():
-    MYSQL_HOST = '103.235.105.148'
-    MYSQL_USER = 'root'
-    MYSQL_PASSWORD = 'F199gDmr}qf@bZ{r'
-    MYSQL_PORT = '3306'
-    MYSQL_DB = 'rms'
-
-    # MYSQL_HOST = '127.0.0.1'
+    # MYSQL_HOST = '103.235.105.148'
     # MYSQL_USER = 'root'
-    # MYSQL_PASSWORD = 'root'
+    # MYSQL_PASSWORD = 'F199gDmr}qf@bZ{r'
     # MYSQL_PORT = '3306'
     # MYSQL_DB = 'rms'
+
+    MYSQL_HOST = '127.0.0.1'
+    MYSQL_USER = 'root'
+    MYSQL_PASSWORD = 'root'
+    MYSQL_PORT = '3306'
+    MYSQL_DB = 'rms'
 
     conn_string = mysql.connector.connect(
         host=MYSQL_HOST,
