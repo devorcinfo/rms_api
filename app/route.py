@@ -9,251 +9,251 @@ from report import py_report
 from users import py_user
 
 
-def admin_login(request):
-    response = py_login.fn_admin_login(request)
+def admin_login(request_header, request):
+    response = py_login.fn_admin_login(request_header, request_header, request)
     return response
 
 
-def meal_type():
-    response = py_filters.fn_meal_type()
+def meal_type(request_header,):
+    response = py_filters.fn_meal_type(request_header,)
     return response
 
 
-def add_meal_type(request):
-    response = py_filters.fn_add_meal_type(request)
+def add_meal_type(request_header,request):
+    response = py_filters.fn_add_meal_type(request_header,request)
     return response
 
 
-def delete_dishtype(request):
-    response = py_filters.fn_delete_dishtype(request)
+def delete_dishtype(request_header,request):
+    response = py_filters.fn_delete_dishtype(request_header,request)
     return response
 
 
-def dish_type():
-    response = py_filters.fn_dish_type()
+def dish_type(request_header,):
+    response = py_filters.fn_dish_type(request_header,)
     return response
 
 
-def dish_type1():
-    response = py_filters.fn_dish_type1()
+def dish_type1(request_header,):
+    response = py_filters.fn_dish_type1(request_header,)
     return response
 
 
-def add_dish_type(request):
-    response = py_filters.fn_add_dish_type(request)
+def add_dish_type(request_header,request):
+    response = py_filters.fn_add_dish_type(request_header,request)
     return response
 
 
-def count_dishtype_items(request):
-    response = py_filters.fn_count_dishtype_items(request)
+def count_dishtype_items(request_header,request):
+    response = py_filters.fn_count_dishtype_items(request_header,request)
     return response
 
 
-def printer():
-    response = py_filters.fn_printer()
+def printer(request_header,):
+    response = py_filters.fn_printer(request_header,)
     return response
 
 
-def reference():
-    response = py_filters.fn_reference()
+def reference(request_header,):
+    response = py_filters.fn_reference(request_header,)
     return response
 
 
-def percentage():
-    response = py_filters.fn_percentage()
+def percentage(request_header,):
+    response = py_filters.fn_percentage(request_header,)
     return response
 
 
-def hall():
-    response = py_filters.fn_hall()
+def hall(request_header,):
+    response = py_filters.fn_hall(request_header,)
     return response
 
 
-def dish_items(request):
-    response = py_dish.fn_dish_items(request)
+def dish_items(request_header,request):
+    response = py_dish.fn_dish_items(request_header,request)
     return response
 
 
-def dish_items1(request):
-    response = py_dish.fn_dish_items1(request)
+def dish_items1(request_header,request):
+    response = py_dish.fn_dish_items1(request_header,request)
     return response
 
 
-def dish_items_user(request):
-    response = py_dish.fn_dish_items_user(request)
+def dish_items_user(request_header,request):
+    response = py_dish.fn_dish_items_user(request_header,request)
     return response
 
 
-def dish_manage(request):
-    response = py_dish.fn_dish_manage(request)
+def dish_manage(request_header,request):
+    response = py_dish.fn_dish_manage(request_header,request)
     return response
 
 
-def dish_delete(request):
-    response = py_dish.fn_dish_delete(request)
+def dish_delete(request_header,request):
+    response = py_dish.fn_dish_delete(request_header,request)
     return response
 
 
-def dish_status(request):
-    response = py_dish.fn_dish_status(request)
+def dish_status(request_header,request):
+    response = py_dish.fn_dish_status(request_header,request)
     return response
 
 
-def qty_update(request):
-    response = py_dish.fn_qty_update(request)
+def qty_update(request_header,request):
+    response = py_dish.fn_qty_update(request_header,request)
     return response
 
 
-def user_list():
-    response = py_user.fn_user_list()
+def user_list(request_header,):
+    response = py_user.fn_user_list(request_header,)
     return response
 
 
-def user_manage(request):
-    response = py_user.fn_user_manage(request)
+def user_manage(request_header,request):
+    response = py_user.fn_user_manage(request_header,request)
     return response
 
 
-def user_delete(request):
-    response = py_user.fn_user_delete(request)
+def user_delete(request_header,request):
+    response = py_user.fn_user_delete(request_header,request)
     return response
 
 
-def user_status(request):
-    response = py_user.fn_user_status(request)
+def user_status(request_header,request):
+    response = py_user.fn_user_status(request_header,request)
     return response
 
 
-def prv_lst():
-    response = py_user.fn_prv_lst()
+def prv_lst(request_header,):
+    response = py_user.fn_prv_lst(request_header,)
     return response
 
 
-def order_types():
-    response = py_order.fn_order_types()
+def order_types(request_header,):
+    response = py_order.fn_order_types(request_header,)
     return response
 
 
-def order_stat():
-    response = py_order.fn_order_stat()
+def order_stat(request_header,):
+    response = py_order.fn_order_stat(request_header,)
     return response
 
 
-def weight_type():
-    response = py_filters.get_weight_type()
+def weight_type(request_header,):
+    response = py_filters.get_weight_type(request_header,)
     return response
 
 
-def get_bluetooth_config():
-    response = py_filters.get_bluetooth_config()
+def get_bluetooth_config(request_header,):
+    response = py_filters.get_bluetooth_config(request_header,)
     return response
 
 
-def take_order(request):
-    response = py_order.fn_take_order(request)
+def take_order(request_header,request):
+    response = py_order.fn_take_order(request_header,request)
     return response
 
 
-def add_order_items(request):
-    response = py_order.fn_add_order_items(request)
+def add_order_items(request_header,request):
+    response = py_order.fn_add_order_items(request_header,request)
     return response
 
 
-def running_orders():
-    response = py_order.fn_running_orders()
+def running_orders(request_header,):
+    response = py_order.fn_running_orders(request_header,)
     return response
 
 
-def dash_nav():
-    response = py_order.fn_dash_nav()
+def dash_nav(request_header,):
+    response = py_order.fn_dash_nav(request_header,)
     return response
 
 
-def dishtype_temp_delete(request):
-    response = py_dish.fn_dishtype_temp_delete(request)
+def dishtype_temp_delete(request_header,request):
+    response = py_dish.fn_dishtype_temp_delete(request_header,request)
     return response
 
 
-def running_orderitems(request):
-    response = py_order.fn_running_orderitems(request)
+def running_orderitems(request_header,request):
+    response = py_order.fn_running_orderitems(request_header,request)
     return response
 
 
-def order_complete(request):
-    response = py_order.fn_order_complete(request)
+def order_complete(request_header,request):
+    response = py_order.fn_order_complete(request_header,request)
     return response
 
 
-def remove_items(request):
-    response = py_order.fn_remove_items(request)
+def remove_items(request_header,request):
+    response = py_order.fn_remove_items(request_header,request)
     return response
 
 
-def cancel_order(request):
-    response = py_order.fn_cancel_order(request)
+def cancel_order(request_header,request):
+    response = py_order.fn_cancel_order(request_header,request)
     return response
 
 
-def order_report(request):
-    response = py_report.fn_order_report(request)
+def order_report(request_header,request):
+    response = py_report.fn_order_report(request_header,request)
     return response
 
 
-def reprint_bill(request):
-    response = py_order.fn_reprint_bill(request)
+def reprint_bill(request_header,request):
+    response = py_order.fn_reprint_bill(request_header,request)
     return response
 
 
-def order_report_items(request):
-    response = py_report.fn_order_report_items(request)
+def order_report_items(request_header,request):
+    response = py_report.fn_order_report_items(request_header,request)
     return response
 
 
-def dish_report(request):
-    response = py_report.fn_dish_report(request)
+def dish_report(request_header,request):
+    response = py_report.fn_dish_report(request_header,request)
     return response
 
 
-def counter_details(request):
-    response = py_counter.fn_counter_details(request)
+def counter_details(request_header,request):
+    response = py_counter.fn_counter_details(request_header,request)
     return response
 
 
-def hall_details():
-    response = py_counter.fn_hall_details()
+def hall_details(request_header,):
+    response = py_counter.fn_hall_details(request_header,)
     return response
 
 
-def counter_manage(request):
-    response = py_counter.fn_counter_manage(request)
+def counter_manage(request_header,request):
+    response = py_counter.fn_counter_manage(request_header,request)
     return response
 
 
-def counter_delete(request):
-    response = py_counter.fn_counter_delete(request)
+def counter_delete(request_header,request):
+    response = py_counter.fn_counter_delete(request_header,request)
     return response
 
 
-def purchase_list():
-    response = py_purchase.fn_purchase_list()
+def purchase_list(request_header,):
+    response = py_purchase.fn_purchase_list(request_header,)
     return response
 
 
-def add_purchase(request):
-    response = py_purchase.fn_add_purchase(request)
+def add_purchase(request_header,request):
+    response = py_purchase.fn_add_purchase(request_header,request)
     return response
 
 
-def sales(request):
-    response = py_dashboard.fn_sales(request)
+def sales(request_header,request):
+    response = py_dashboard.fn_sales(request_header,request)
     return response
 
 
-def sales_by_category(request):
-    response = py_dashboard.fn_sales_by_category(request)
+def sales_by_category(request_header,request):
+    response = py_dashboard.fn_sales_by_category(request_header,request)
     return response
 
 
-def sales_by_items(request):
-    response = py_dashboard.fn_sales_by_items(request)
+def sales_by_items(request_header,request):
+    response = py_dashboard.fn_sales_by_items(request_header,request)
     return response

@@ -1,7 +1,7 @@
 from connectivity import py_connectivity
 
 
-def fn_order_report(request):
+def fn_order_report(request_header, request):
     orders = []
     from_dt = request.get('from_dt') + " 00:00:00"
     to_dt = request.get('to_dt') + " 23:59:59"
@@ -11,7 +11,7 @@ def fn_order_report(request):
                f"c_gst,s_gst,order_total,discount,grand_total,dis_perc,dis_ref,dis_person,reference,table_no,"
                f"persons,user_name,order_id as id from v_orders where updated_at between '{from_dt}' and '{to_dt}' "
                f"and ostatus=2")
-        result, key = py_connectivity.get_result(sql)
+        result, key = py_connectivity.fetch_result_set(sql, request_header)
         if result and len(result) > 0:
             for row in result:
                 json_data = dict(list(zip(key, row)))
@@ -33,14 +33,14 @@ def fn_order_report(request):
         return {"orders": orders}
 
 
-def fn_order_report_items(request):
+def fn_order_report_items(request_header, request):
     dish_items = []
     print(request, "---vvv")
     order_id = request.get('order_id')
     try:
         sql = (f"select dish_name, include_tax, sum(qty) qty, sum(price) price from v_order_items where "
                f"order_fk={order_id} and status=1 group by dish_name, include_tax")
-        result, key = py_connectivity.get_result(sql)
+        result, key = py_connectivity.fetch_result_set(sql, request_header)
         if result and len(result) > 0:
             for row in result:
                 json_data = dict(list(zip(key, row)))
@@ -56,7 +56,7 @@ def fn_order_report_items(request):
         return {"dish_items": dish_items}
 
 
-def fn_dish_report(request):
+def fn_dish_report(request_header, request):
     dish = []
     from_dt = request.get('from_dt') + " 00:00:00"
     to_dt = request.get('to_dt') + " 23:59:59"
@@ -67,7 +67,7 @@ def fn_dish_report(request):
                f"c.category_id=d.category_fk where o.dt between '{from_dt}' and '{to_dt}'  and o.status=1 group by "
                f"o.dish_name,d.including_tax,dt.type_name, c.category_name")
         print(sql)
-        result, key = py_connectivity.get_result(sql)
+        result, key = py_connectivity.fetch_result_set(sql, request_header)
         if result and len(result) > 0:
             cnt = 1
             for row in result:

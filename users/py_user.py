@@ -1,13 +1,13 @@
 from connectivity import py_connectivity
 
 
-def fn_user_list():
+def fn_user_list(request_header):
     user_list = []
     try:
         sql = ("select user_id as id,user_id,priv_id,previlege_name,user_name,password,DATE_FORMAT(login_created_at, "
                "'%d %M %Y %r') as login_created_at,DATE_FORMAT(login_updated_at, '%d %M %Y %r') as login_updated_at,"
                "status from v_users where priv_id!=1")
-        result, key = py_connectivity.get_result(sql)
+        result, key = py_connectivity.fetch_result_set(sql, request_header)
         if result and len(result) > 0:
             for row in result:
                 json_data = dict(list(zip(key, row)))
@@ -18,47 +18,47 @@ def fn_user_list():
         return {"user_list": user_list}
 
 
-def fn_user_manage(request):
+def fn_user_manage(request_header, request):
     user_id = request.get("user_id")
     user_name = request.get("user_name")
     password = request.get("password")
     priv_id = request.get("priv_id")
     try:
-        result = py_connectivity.call_proc('sp_user_inup', (
-            user_id, user_name, password, priv_id, None))
+        result = py_connectivity.fetch_result_set_proc('sp_user_inup', (
+            user_id, user_name, password, priv_id, None), request_header)
         return {"val": 1, "message": "Your response have been updated successfully"}
     except Exception as e:
         print("fn_dish_manage " + str(e))
         return {"val": 0, "message": "Something went wrong"}
 
 
-def fn_user_delete(request):
+def fn_user_delete(request_header, request):
     user_id = request.get("user_id")
     try:
-        result = py_connectivity.call_proc('sp_user_del', (user_id, None))
+        result = py_connectivity.fetch_result_set_proc('sp_user_del', (user_id, None), request_header)
         return {"val": 1, "message": "User have been removed successfully"}
     except Exception as e:
         print("fn_dish_delete " + str(e))
         return {"val": 0, "message": "Something went wrong"}
 
 
-def fn_user_status(request):
+def fn_user_status(request_header, request):
     user_id = request.get("user_id")
     status = request.get("status")
     try:
         sql = f"update users set status={status}  where user_id={user_id}"
-        result = py_connectivity.exec_qry(sql)
+        result = py_connectivity.exec_qry(sql, request_header)
         return {"val": 1, "message": "User status have been updated successfully"}
     except Exception as e:
         print("fn_user_status " + str(e))
         return {"val": 0, "message": "Something went wrong"}
 
 
-def fn_prv_lst():
+def fn_prv_lst(request_header):
     prv_lst = []
     try:
         sql = "SELECT previlege_id,previlege_name FROM previlege"
-        result, key = py_connectivity.get_result(sql)
+        result, key = py_connectivity.fetch_result_set(sql, request_header)
         k = ['value', 'label']
         if result and len(result) > 0:
             for row in result:

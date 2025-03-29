@@ -7,14 +7,14 @@ env_path = str(Path(__file__).absolute().parents[1] / "config.env")
 load_dotenv(env_path)
 
 
-def fn_purchase_list():
+def fn_purchase_list(request_header):
     purchases = []
     try:
         sql = (
             "select purchase_pk_id as id,name,description,qty,total_price,invoice_url,items,suppliers,DATE_FORMAT("
             "created_at,'%d %M %Y %r') as created_at,DATE_FORMAT(purchased_at,'%d %M %Y %r') as purchased_at from "
             "stc_purchase")
-        result, key = py_connectivity.get_result(sql)
+        result, key = py_connectivity.fetch_result_set(sql, request_header)
         if result and len(result) > 0:
             for row in result:
                 json_data = dict(list(zip(key, row)))
@@ -25,12 +25,12 @@ def fn_purchase_list():
         return {"purchases": purchases}
 
 
-def fn_add_purchase(request):
+def fn_add_purchase(request_header, request):
     try:
         dt = datetime.fromisoformat(request['Date'].replace("Z", "+00:00"))
         date_only = dt.date()
         qry = "update sales_overall SET investment = %s WHERE dt = %s"
-        py_connectivity.put_result(qry, (request['InvestmentPrice'], date_only))
+        py_connectivity.put_result(qry, (request['InvestmentPrice'], date_only), request_header)
         return {"rval": 1, "message": "Your response have been updated successfully"}
     except Exception as e:
         print("fn_add_purchase " + str(e))

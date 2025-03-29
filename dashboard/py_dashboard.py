@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 
 
-def fn_sales(request):
+def fn_sales(request_header, request):
     date_range = request.get('date_range')
     total_investment = 0
     total_sales = 0
@@ -14,7 +14,7 @@ def fn_sales(request):
             start_date, end_date = fn_convert_date_range(date_range)
             sql = (f"SELECT DATE_FORMAT(dt,'%H:%i') dt,investment, sale_price, tax FROM sales_investment_1hr where "
                    f"dt between '{start_date}' and '{end_date}'")
-            result, key = py_connectivity.get_result(sql)
+            result, key = py_connectivity.fetch_result_set(request_header, sql)
             if result and len(result) > 0:
                 for row in result:
                     data = dict(zip(key, row))
@@ -25,7 +25,7 @@ def fn_sales(request):
         else:
             start_date, end_date = fn_convert_date_range(date_range)
             sql = f"SELECT dt,investment, sale_price, tax FROM sales_overall where dt between '{start_date}' and '{end_date}'"
-            result, key = py_connectivity.get_result(sql)
+            result, key = py_connectivity.fetch_result_set(request_header, sql)
             if result and len(result) > 0:
                 for row in result:
                     data = dict(zip(key, row))
@@ -41,7 +41,7 @@ def fn_sales(request):
         return {"records": []}
 
 
-def fn_sales_by_category(request):
+def fn_sales_by_category(request_header, request):
     date_range = request.get('date_range')
     records_grouped = []
     try:
@@ -53,7 +53,7 @@ def fn_sales_by_category(request):
                    "case when ifnull(a.tot,0)=0 then 0 else round((ifnull(a.tot,0)/all_tot)*100,2) end as perc from "
                    "order_types ot left join a on a.otype=ot.type_id left join b on 1=1")
             print(sql)
-            result, key = py_connectivity.get_result(sql)
+            result, key = py_connectivity.fetch_result_set(sql, request_header)
             if result and len(result) > 0:
                 for row in result:
                     data = dict(zip(key, row))
@@ -72,7 +72,7 @@ def fn_sales_by_category(request):
                    f"JOIN cte ON 1=1 "
                    f"WHERE s.dt BETWEEN '{start_date}' AND '{end_date}' "
                    f"GROUP BY s.category, cte.tot")
-            result, key = py_connectivity.get_result(sql)
+            result, key = py_connectivity.fetch_result_set(sql, request_header)
             if result and len(result) > 0:
                 for row in result:
                     data = dict(zip(key, row))
@@ -83,7 +83,7 @@ def fn_sales_by_category(request):
         return {"records": []}
 
 
-def fn_sales_by_items(request):
+def fn_sales_by_items(request_header, request):
     date_range = request.get('date_range')
     records_grouped = []
     try:
@@ -93,7 +93,7 @@ def fn_sales_by_items(request):
                    "SUM(o.qty) as qty, round((sum(o.price)/a.tot)*100,2) perc FROM order_items o left join a on "
                    "1=1 where o.dt between concat(current_date(),' 00:00:00') and current_timestamp() GROUP BY "
                    "o.dish_name, a.tot ORDER BY price DESC LIMIT 5")
-            result, key = py_connectivity.get_result(sql)
+            result, key = py_connectivity.fetch_result_set(sql, request_header)
             if result and len(result) > 0:
                 for row in result:
                     data = dict(zip(key, row))
@@ -115,7 +115,7 @@ def fn_sales_by_items(request):
                    f"GROUP BY c.items, cte.tot "
                    f"ORDER BY price DESC "
                    f"LIMIT 5")
-            result, key = py_connectivity.get_result(sql)
+            result, key = py_connectivity.fetch_result_set(sql, request_header)
             if result and len(result) > 0:
                 for row in result:
                     data = dict(zip(key, row))

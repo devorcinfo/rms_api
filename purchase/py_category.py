@@ -1,12 +1,12 @@
 from connectivity import py_connectivity
 
 
-def fn_category():
+def fn_category(request_header):
     category = []
     try:
         sql = (
             "select  category_name from stc_item_category")
-        result, key = py_connectivity.get_result(sql)
+        result, key = py_connectivity.fetch_result_set(sql, request_header)
         if result and len(result) > 0:
             for row in result:
                 json_data = dict(list(zip(key, row)))
@@ -17,11 +17,11 @@ def fn_category():
         return {"category": category}
 
 
-def fn_manage_category(request):
+def fn_manage_category(request_header, request):
     category_name = request.get("category")
     try:
-        result = py_connectivity.call_proc('sp_category_inup',
-                                           (category_name, None))
+        result = py_connectivity.fetch_result_set_proc('sp_category_inup',
+                                           (category_name, None), request_header)
         return {"val": 1, "message": "Your response have been updated successfully"}
     except Exception as e:
         print("fn_manage_category " + str(e))

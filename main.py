@@ -1,20 +1,43 @@
 import json
-
 import uvicorn
 from fastapi import FastAPI, Request, HTTPException,Depends
 from fastapi.middleware.cors import CORSMiddleware
-from mangum import Mangum
-
+from mysql.connector import pooling, Error
 from auth import py_jwt
+from contextlib import asynccontextmanager
 
 
-auth_scheme = py_jwt.JWTBearer()
+def initialize_connection_pool() -> None:
+    try:
+        MYSQL_HOST = '103.235.105.148'
+        MYSQL_USER = 'root'
+        MYSQL_PASSWORD = 'F199gDmr}qf@bZ{r'
+        MYSQL_PORT = '3306'
+        MYSQL_DB = 'rms'
+        app.mysql_pool = pooling.MySQLConnectionPool(
+            pool_name="rms_pool",
+            pool_size=int(1),
+            host=MYSQL_HOST,
+            port=int(MYSQL_PORT),
+            user=MYSQL_USER,
+            password=MYSQL_PASSWORD,
+            database=MYSQL_DB,
+            pool_reset_session=True
+        )
+    except Error as e:
+        print("initialize_connection_pool", str(e))
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("db---start")
+    initialize_connection_pool()
+    yield
+    initialize_connection_pool(app)
+
+
+app = FastAPI(lifespan=lifespan)
 origins = ["*"]
-app = FastAPI()
-
-handler = Mangum(app)
-
 from app import route
 
 app.add_middleware(
@@ -38,11 +61,11 @@ async def index():
 
 # Admin Apis
 @app.post("/rms/admin/login")
-async def admin_login(request: Request):
+async def admin_login(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.admin_login(data)
+            response = route.admin_login(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -52,9 +75,9 @@ async def admin_login(request: Request):
 
 
 @app.get("/rms/filters/meal_type")
-async def meal_type():
+async def meal_type(request_header: Request):
     try:
-        response = route.meal_type()
+        response = route.meal_type(request_header)
         return response
     except Exception as e:
         print("Exception in meal_type: " + str(e))
@@ -62,11 +85,11 @@ async def meal_type():
 
 
 @app.post("/rms/filters/add_meal_type")
-async def add_meal_type(request: Request):
+async def add_meal_type(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.add_meal_type(data)
+            response = route.add_meal_type(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -76,11 +99,11 @@ async def add_meal_type(request: Request):
 
 
 @app.post("/rms/filters/delete_dishtype")
-async def delete_dishtype(request: Request):
+async def delete_dishtype(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.delete_dishtype(data)
+            response = route.delete_dishtype(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -90,9 +113,9 @@ async def delete_dishtype(request: Request):
 
 
 @app.get("/rms/filters/dish_type")
-async def dish_type():
+async def dish_type(request_header: Request):
     try:
-        response = route.dish_type()
+        response = route.dish_type(request_header)
         return response
     except Exception as e:
         print("Exception in dish_type: " + str(e))
@@ -100,9 +123,9 @@ async def dish_type():
 
 
 @app.get("/rms/filters/dish_type1")
-async def dish_type1():
+async def dish_type1(request_header: Request):
     try:
-        response = route.dish_type1()
+        response = route.dish_type1(request_header)
         return response
     except Exception as e:
         print("Exception in dish_type: " + str(e))
@@ -110,11 +133,11 @@ async def dish_type1():
 
 
 @app.post("/rms/filters/add_dish_type")
-async def add_dish_type(request: Request):
+async def add_dish_type(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.add_dish_type(data)
+            response = route.add_dish_type(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -124,11 +147,11 @@ async def add_dish_type(request: Request):
 
 
 @app.get("/rms/filters/count_dishtype_items")
-async def count_dishtype_items(data=None):
+async def count_dishtype_items(request_header: Request, data=None):
     try:
         if data is not None:
             request = json.loads(data)
-            response = route.count_dishtype_items(request)
+            response = route.count_dishtype_items(request_header, request)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -138,9 +161,9 @@ async def count_dishtype_items(data=None):
 
 
 @app.get("/rms/filters/printer")
-async def printer():
+async def printer(request_header: Request):
     try:
-        response = route.printer()
+        response = route.printer(request_header)
         return response
     except Exception as e:
         print("Exception in dish_type: " + str(e))
@@ -148,9 +171,9 @@ async def printer():
 
 
 @app.get("/rms/filters/reference")
-async def reference():
+async def reference(request_header: Request):
     try:
-        response = route.reference()
+        response = route.reference(request_header)
         return response
     except Exception as e:
         print("Exception in dish_type: " + str(e))
@@ -158,9 +181,9 @@ async def reference():
 
 
 @app.get("/rms/filters/percentage")
-async def percentage():
+async def percentage(request_header: Request):
     try:
-        response = route.percentage()
+        response = route.percentage(request_header)
         return response
     except Exception as e:
         print("Exception in dish_type: " + str(e))
@@ -168,9 +191,9 @@ async def percentage():
 
 
 @app.get("/rms/filters/weight_type")
-async def weight_type():
+async def weight_type(request_header: Request):
     try:
-        response = route.weight_type()
+        response = route.weight_type(request_header)
         return response
     except Exception as e:
         print("Exception in dish_type: " + str(e))
@@ -178,9 +201,9 @@ async def weight_type():
 
 
 @app.get("/rms/filters/get_bluetooth_config")
-async def get_bluetooth_config():
+async def get_bluetooth_config(request_header: Request):
     try:
-        response = route.get_bluetooth_config()
+        response = route.get_bluetooth_config(request_header)
         return response
     except Exception as e:
         print("Exception in dish_type: " + str(e))
@@ -188,9 +211,9 @@ async def get_bluetooth_config():
 
 
 @app.get("/rms/filters/hall")
-async def hall():
+async def hall(request_header: Request):
     try:
-        response = route.hall()
+        response = route.hall(request_header)
         return response
     except Exception as e:
         print("Exception in hall: " + str(e))
@@ -198,11 +221,11 @@ async def hall():
 
 
 @app.get("/rms/dish/dish_items")
-async def dish_items(data=None):
+async def dish_items(request_header: Request, data=None):
     try:
         if data is not None:
             request = json.loads(data)
-            response = route.dish_items(request)
+            response = route.dish_items(request_header, request)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -212,11 +235,11 @@ async def dish_items(data=None):
 
 
 @app.get("/rms/dish/dish_items1")
-async def dish_items1(data=None):
+async def dish_items1(request_header: Request, data=None):
     try:
         if data is not None:
             request = json.loads(data)
-            response = route.dish_items1(request)
+            response = route.dish_items1(request_header, request)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -226,11 +249,11 @@ async def dish_items1(data=None):
 
 
 @app.get("/rms/dish/dish_items_user")
-async def dish_items_user(data=None):
+async def dish_items_user(request_header: Request, data=None):
     try:
         if data is not None:
             request = json.loads(data)
-            response = route.dish_items_user(request)
+            response = route.dish_items_user(request_header, request)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -240,11 +263,11 @@ async def dish_items_user(data=None):
 
 
 @app.post("/rms/dish/manage")
-async def dish_manage(request: Request):
+async def dish_manage(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.dish_manage(data)
+            response = route.dish_manage(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -254,11 +277,11 @@ async def dish_manage(request: Request):
 
 
 @app.post("/rms/dish/delete")
-async def dish_delete(request: Request):
+async def dish_delete(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.dish_delete(data)
+            response = route.dish_delete(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -268,11 +291,11 @@ async def dish_delete(request: Request):
 
 
 @app.post("/rms/dish/status")
-async def dish_status(request: Request):
+async def dish_status(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.dish_status(data)
+            response = route.dish_status(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -282,11 +305,11 @@ async def dish_status(request: Request):
 
 
 @app.post("/rms/dish/qty_update")
-async def qty_update(request: Request):
+async def qty_update(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.qty_update(data)
+            response = route.qty_update(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -296,9 +319,9 @@ async def qty_update(request: Request):
 
 
 @app.get("/rms/users/user_list")
-async def user_list():
+async def user_list(request_header: Request):
     try:
-        response = route.user_list()
+        response = route.user_list(request_header)
         return response
     except Exception as e:
         print("Exception in dish_items: " + str(e))
@@ -306,9 +329,9 @@ async def user_list():
 
 
 @app.get("/rms/users/prv_lst")
-async def prv_lst():
+async def prv_lst(request_header: Request):
     try:
-        response = route.prv_lst()
+        response = route.prv_lst(request_header)
         return response
     except Exception as e:
         print("Exception in dish_items: " + str(e))
@@ -316,11 +339,11 @@ async def prv_lst():
 
 
 @app.post("/rms/users/manage")
-async def user_manage(request: Request):
+async def user_manage(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.user_manage(data)
+            response = route.user_manage(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -330,11 +353,11 @@ async def user_manage(request: Request):
 
 
 @app.post("/rms/users/delete")
-async def user_delete(request: Request):
+async def user_delete(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.user_delete(data)
+            response = route.user_delete(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -344,11 +367,11 @@ async def user_delete(request: Request):
 
 
 @app.post("/rms/users/status")
-async def user_status(request: Request):
+async def user_status(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.user_status(data)
+            response = route.user_status(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -358,9 +381,9 @@ async def user_status(request: Request):
 
 
 @app.get("/rms/orders/order_types")
-async def order_types():
+async def order_types(request_header: Request):
     try:
-        response = route.order_types()
+        response = route.order_types(request_header)
         return response
     except Exception as e:
         print("Exception in order_types: " + str(e))
@@ -368,9 +391,9 @@ async def order_types():
 
 
 @app.get("/rms/orders/order_stat")
-async def order_stat():
+async def order_stat(request_header: Request):
     try:
-        response = route.order_stat()
+        response = route.order_stat(request_header)
         return response
     except Exception as e:
         print("Exception in order_status: " + str(e))
@@ -378,11 +401,11 @@ async def order_stat():
 
 
 @app.post("/rms/orders/take_order")
-async def take_order(request: Request):
+async def take_order(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.take_order(data)
+            response = route.take_order(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -392,11 +415,11 @@ async def take_order(request: Request):
 
 
 @app.post("/rms/orders/take_order1")
-async def take_order(request: Request):
+async def take_order(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.take_order(data)
+            response = route.take_order(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -406,11 +429,11 @@ async def take_order(request: Request):
 
 
 @app.post("/rms/orders/add_order_items")
-async def add_order_items(request: Request):
+async def add_order_items(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.add_order_items(data)
+            response = route.add_order_items(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -420,9 +443,9 @@ async def add_order_items(request: Request):
 
 
 @app.get("/rms/orders/running_orders")
-async def running_orders():
+async def running_orders(request_header: Request):
     try:
-        response = route.running_orders()
+        response = route.running_orders(request_header)
         return response
     except Exception as e:
         print("Exception in running_orders: " + str(e))
@@ -430,11 +453,11 @@ async def running_orders():
 
 
 @app.post("/rms/dish/dishtype_temp_delete")
-async def dishtype_temp_delete(request: Request):
+async def dishtype_temp_delete(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.dishtype_temp_delete(data)
+            response = route.dishtype_temp_delete(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -444,9 +467,9 @@ async def dishtype_temp_delete(request: Request):
 
 
 @app.get("/rms/dash/dash_nav")
-async def dash_nav():
+async def dash_nav(request_header: Request):
     try:
-        response = route.dash_nav()
+        response = route.dash_nav(request_header)
         return response
     except Exception as e:
         print("Exception in running_orders: " + str(e))
@@ -454,11 +477,11 @@ async def dash_nav():
 
 
 @app.get("/rms/orders/running_orderitems")
-async def running_orderitems(data=None):
+async def running_orderitems(request_header: Request, data=None):
     try:
         if data is not None:
             request = json.loads(data)
-            response = route.running_orderitems(request)
+            response = route.running_orderitems(request_header, request)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -468,11 +491,11 @@ async def running_orderitems(data=None):
 
 
 @app.post("/rms/orders/order_complete")
-async def order_status(request: Request):
+async def order_status(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.order_complete(data)
+            response = route.order_complete(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -482,11 +505,11 @@ async def order_status(request: Request):
 
 
 @app.post("/rms/orders/remove_items")
-async def remove_items(request: Request):
+async def remove_items(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.remove_items(data)
+            response = route.remove_items(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -496,11 +519,11 @@ async def remove_items(request: Request):
 
 
 @app.post("/rms/orders/cancel_order")
-async def cancel_order(request: Request):
+async def cancel_order(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.cancel_order(data)
+            response = route.cancel_order(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -510,11 +533,11 @@ async def cancel_order(request: Request):
 
 
 @app.get("/rms/orders/reprint_bill")
-async def reprint_bill(data=None):
+async def reprint_bill(request_header: Request, data=None):
     try:
         if data is not None:
             request = json.loads(data)
-            response = route.reprint_bill(request)
+            response = route.reprint_bill(request_header, request)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -524,11 +547,11 @@ async def reprint_bill(data=None):
 
 
 @app.get("/rms/report/order_report")
-async def order_report(data=None):
+async def order_report(request_header: Request, data=None):
     try:
         if data is not None:
             request = json.loads(data)
-            response = route.order_report(request)
+            response = route.order_report(request_header, request)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -538,11 +561,11 @@ async def order_report(data=None):
 
 
 @app.get("/rms/report/order_report_items")
-async def order_report_items(data=None):
+async def order_report_items(request_header: Request, data=None):
     try:
         if data is not None:
             request = json.loads(data)
-            response = route.order_report_items(request)
+            response = route.order_report_items(request_header, request)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -552,11 +575,11 @@ async def order_report_items(data=None):
 
 
 @app.get("/rms/report/dish_report")
-async def dish_report(data=None):
+async def dish_report(request_header: Request, data=None):
     try:
         if data is not None:
             request = json.loads(data)
-            response = route.dish_report(request)
+            response = route.dish_report(request_header, request)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -566,11 +589,11 @@ async def dish_report(data=None):
 
 
 @app.get("/rms/counters/counter_details")
-async def counter_details(data=None):
+async def counter_details(request_header: Request, data=None):
     try:
         if data is not None:
             request = json.loads(data)
-            response = route.counter_details(request)
+            response = route.counter_details(request_header, request)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -580,9 +603,9 @@ async def counter_details(data=None):
 
 
 @app.get("/rms/counters/hall_details")
-async def hall_details():
+async def hall_details(request_header: Request):
     try:
-        response = route.hall_details()
+        response = route.hall_details(request_header)
         return response
     except Exception as e:
         print("Exception in counter_details: " + str(e))
@@ -590,11 +613,11 @@ async def hall_details():
 
 
 @app.post("/rms/counter/counter_manage")
-async def counter_manage(request: Request):
+async def counter_manage(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.counter_manage(data)
+            response = route.counter_manage(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -604,11 +627,11 @@ async def counter_manage(request: Request):
 
 
 @app.post("/rms/counter/counter_delete")
-async def counter_delete(request: Request):
+async def counter_delete(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.counter_delete(data)
+            response = route.counter_delete(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -618,11 +641,11 @@ async def counter_delete(request: Request):
 
 
 @app.post("/rms/counter/counter_delete")
-async def counter_delete(request: Request):
+async def counter_delete(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.counter_delete(data)
+            response = route.counter_delete(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -632,9 +655,9 @@ async def counter_delete(request: Request):
 
 
 @app.get("/rms/purchase/suppliers")
-async def suppliers():
+async def suppliers(request_header: Request):
     try:
-        response = route.suppliers()
+        response = route.suppliers(request_header)
         return response
     except Exception as e:
         print("Exception in suppliers: " + str(e))
@@ -642,11 +665,11 @@ async def suppliers():
 
 
 @app.post("/rms/purchase/manage_suppliers")
-async def manage_suppliers(request: Request):
+async def manage_suppliers(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.manage_suppliers(data)
+            response = route.manage_suppliers(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -656,9 +679,9 @@ async def manage_suppliers(request: Request):
 
 
 @app.get("/rms/purchase/items")
-async def items():
+async def items(request_header: Request):
     try:
-        response = route.items()
+        response = route.items(request_header)
         return response
     except Exception as e:
         print("Exception in items: " + str(e))
@@ -666,11 +689,11 @@ async def items():
 
 
 @app.post("/rms/purchase/manage_items")
-async def manage_items(request: Request):
+async def manage_items(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.manage_items(data)
+            response = route.manage_items(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -680,9 +703,9 @@ async def manage_items(request: Request):
 
 
 @app.get("/rms/purchase/category")
-async def category():
+async def category(request_header: Request):
     try:
-        response = route.category()
+        response = route.category(request_header)
         return response
     except Exception as e:
         print("Exception in items: " + str(e))
@@ -690,11 +713,11 @@ async def category():
 
 
 @app.post("/rms/purchase/manage_category")
-async def manage_category(request: Request):
+async def manage_category(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.manage_category(data)
+            response = route.manage_category(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -704,9 +727,9 @@ async def manage_category(request: Request):
 
 
 @app.get("/rms/purchase/list")
-async def purchase_list():
+async def purchase_list(request_header: Request):
     try:
-        response = route.purchase_list()
+        response = route.purchase_list(request_header)
         return response
     except Exception as e:
         print("Exception in purchase_list: " + str(e))
@@ -714,11 +737,11 @@ async def purchase_list():
 
 
 @app.post("/rms/purchase/add")
-async def add_purchase(request: Request):
+async def add_purchase(request_header: Request):
     try:
-        data = await request.json()
+        data = await request_header.json()
         if data is not None:
-            response = route.add_purchase(data)
+            response = route.add_purchase(request_header, data)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -728,11 +751,11 @@ async def add_purchase(request: Request):
 
 
 @app.get("/rms/dashboard/get_sales_stats")
-async def get_sales_stats(data=None):
+async def get_sales_stats(request_header: Request, data=None):
     try:
         if data is not None:
             request = json.loads(data)
-            response = route.sales(request)
+            response = route.sales(request_header, request)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -742,11 +765,11 @@ async def get_sales_stats(data=None):
 
 
 @app.get("/rms/dashboard/sales_by_category")
-async def sales_by_category(data=None):
+async def sales_by_category(request_header: Request, data=None):
     try:
         if data is not None:
             request = json.loads(data)
-            response = route.sales_by_category(request)
+            response = route.sales_by_category(request_header, request)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
@@ -756,11 +779,11 @@ async def sales_by_category(data=None):
 
 
 @app.get("/rms/dashboard/sales_by_items")
-async def sales_by_items(data=None):
+async def sales_by_items(request_header: Request, data=None):
     try:
         if data is not None:
             request = json.loads(data)
-            response = route.sales_by_items(request)
+            response = route.sales_by_items(request_header, request)
             return response
         else:
             raise HTTPException(status_code=400, detail="Invalid Request!")
