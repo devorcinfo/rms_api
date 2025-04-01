@@ -10,7 +10,7 @@ from users import py_user
 
 
 def admin_login(request_header, request):
-    response = py_login.fn_admin_login(request_header, request_header, request)
+    response = py_login.fn_admin_login(request_header, request)
     return response
 
 

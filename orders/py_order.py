@@ -55,7 +55,7 @@ def fn_take_order(request_header, request):
             'sp_take_order',
             (table_fk, persons, order_type, user_fk, refr, dish_data_json, None), request_header
         )
-        res = get_print_item_res(order_id)
+        res = get_print_item_res(request_header, order_id)
         return {"val": 1, "message": "Your order has been placed successfully", "order_id": order_id[-1],
                 "output_detail": res}
 
@@ -93,7 +93,7 @@ def fn_add_order_items(request_header, request):
             'sp_add_items',
             (order_id, dish_data_json), request_header
         )
-        return {"val": 1, "message": "Items have been added successfully", "output_detail": get_print_item_add_res(order_id)}
+        return {"val": 1, "message": "Items have been added successfully", "output_detail": get_print_item_add_res(request_header, order_id)}
     except Exception as e:
         print("fn_take_order " + str(e))
         return {"val": 0, "message": "Something went wrong"}
@@ -151,7 +151,7 @@ def fn_order_complete(request_header, request):
         res = py_connectivity.fetch_result_set_proc('sp_order_complete', (
             order_id, order_value, parcel_charge, c_gst, s_gst, total, discount, grand_total, d_percent, d_ref,
             d_person, None), request_header)
-        return {"val": 1, "message": "Order has been completed successfully", "output_detail": get_print_res(res[-1])}
+        return {"val": 1, "message": "Order has been completed successfully", "output_detail": get_print_res(request_header, res[-1])}
     except Exception as e:
         print("fn_order_complete " + str(e))
         return {"val": 0, "message": "Something went wrong"}
