@@ -29,8 +29,7 @@ def fn_add_purchase(request_header, request):
     try:
         dt = datetime.fromisoformat(request['Date'].replace("Z", "+00:00"))
         date_only = dt.date()
-        qry = "update sales_overall SET investment = %s WHERE dt = %s"
-        py_connectivity.put_result(qry, (request['InvestmentPrice'], date_only), request_header)
+        py_connectivity.fetch_result_set_proc('sp_investment', (date_only, request['InvestmentPrice']), request_header)
         return {"rval": 1, "message": "Your response have been updated successfully"}
     except Exception as e:
         print("fn_add_purchase " + str(e))

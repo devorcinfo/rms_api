@@ -10,32 +10,24 @@ def fn_sales(request_header, request):
     total_tax = 0
     records_grouped = []
     try:
-        if date_range == 'today' or date_range == 'yesterday':
+        if date_range == 'today':
             start_date, end_date = fn_convert_date_range(date_range)
-            sql = (f"SELECT DATE_FORMAT(dt,'%H:%i') dt,investment, sale_price, tax FROM sales_investment_1hr where "
-                   f"dt between '{start_date}' and '{end_date}'")
-            result, key = py_connectivity.fetch_result_set(request_header, sql)
+            sql = (f"SELECT sum(investment) investment,round(sum(sale_price),2) "
+                   f"sale_price,sum(tax) tax FROM sales_investment_1hr where dt between '{start_date}' and '{end_date}'")
+            print(sql, "---d")
+            result, key = py_connectivity.fetch_result_set(sql, request_header)
             if result and len(result) > 0:
-                for row in result:
-                    data = dict(zip(key, row))
-                    total_investment += data['investment']
-                    total_sales += data['sale_price']
-                    total_tax += data['tax']
-                    records_grouped.append(data)
+                profit_loss = result[0][1] - result[0][2] - result[0][0]
+                return {"total_investment": result[0][0], "total_sales": result[0][1],
+                        "total_tax": round(result[0][2], 2), "profit_loss": round(profit_loss, 2)}
         else:
             start_date, end_date = fn_convert_date_range(date_range)
-            sql = f"SELECT dt,investment, sale_price, tax FROM sales_overall where dt between '{start_date}' and '{end_date}'"
-            result, key = py_connectivity.fetch_result_set(request_header, sql)
+            sql = f"SELECT sum(investment) investment, sum(sale_price) sale_price, round(sum(tax),2) tax FROM sales_overall where dt between '{start_date}' and '{end_date}'"
+            result, key = py_connectivity.fetch_result_set(sql, request_header)
             if result and len(result) > 0:
-                for row in result:
-                    data = dict(zip(key, row))
-                    total_investment += data['investment']
-                    total_sales += data['sale_price']
-                    total_tax += data['tax']
-                    records_grouped.append(data)
-        profit_loss = total_sales - total_tax - total_investment
-        return {"records": records_grouped, "total_investment": total_investment, "total_sales": total_sales,
-                "total_tax": round(total_tax, 2), "profit_loss": round(profit_loss, 2)}
+                profit_loss = result[0][1] - result[0][2] - result[0][0]
+                return {"total_investment": result[0][0], "total_sales": result[0][1],
+                        "total_tax": round(result[0][2], 2), "profit_loss": round(profit_loss, 2)}
     except Exception as e:
         print("fn_sales " + str(e))
         return {"records": []}
