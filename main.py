@@ -21,7 +21,7 @@ def initialize_connection_pool() -> None:
         # MYSQL_DB = 'rms'
         app.mysql_pool = pooling.MySQLConnectionPool(
             pool_name="rms_pool",
-            pool_size=int(5),
+            pool_size= 1,
             host=MYSQL_HOST,
             port=int(MYSQL_PORT),
             user=MYSQL_USER,

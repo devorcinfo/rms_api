@@ -51,13 +51,13 @@ def fn_take_order(request_header, request):
                 "unit": dish.get("unit")
             } for dish in dishes
         ])
-        order_id = py_connectivity.fetch_result_set_proc(
+        print_data = py_connectivity.fetch_result_set_proc(
             'sp_take_order',
-            (table_fk, persons, order_type, user_fk, refr, dish_data_json, None), request_header
+            (table_fk, persons, order_type, user_fk, refr, dish_data_json, None, None), request_header
         )
-        res = get_print_item_res(request_header, order_id)
-        return {"val": 1, "message": "Your order has been placed successfully", "order_id": order_id[-1],
-                "output_detail": res}
+        # res = get_print_item_res(request_header, order_id)
+        return {"val": 1, "message": "Your order has been placed successfully", "order_id": '',
+                "output_detail": json.loads(print_data[-1])}
 
     except Exception as e:
         print("fn_take_order error: " + str(e))
@@ -68,6 +68,7 @@ def get_print_item_res(request_header, order_id):
     try:
         qry = f"CALL rms.sp_orders_items_print_res(" + str(order_id[-1]) + ");"
         res, key = py_connectivity.fetch_result_set(qry, request_header)
+        print(res, "----v")
         return json.loads(res[0][0])
     except Exception as e:
         print("get_print_item_res " + str(e))
@@ -89,11 +90,11 @@ def fn_add_order_items(request_header, request):
 
             } for dish in dishes
         ])
-        py_connectivity.fetch_result_set_proc(
+        print_res = py_connectivity.fetch_result_set_proc(
             'sp_add_items',
-            (order_id, dish_data_json), request_header
+            (order_id, dish_data_json, None), request_header
         )
-        return {"val": 1, "message": "Items have been added successfully", "output_detail": get_print_item_add_res(request_header, order_id)}
+        return {"val": 1, "message": "Items have been added successfully", "output_detail": json.loads(print_res[-1])}
     except Exception as e:
         print("fn_take_order " + str(e))
         return {"val": 0, "message": "Something went wrong"}
@@ -148,10 +149,10 @@ def fn_order_complete(request_header, request):
     try:
         (order_id, order_value, parcel_charge,
          c_gst, s_gst, total, discount, grand_total, d_percent, d_ref, d_person) = gen_bill_data(request)
-        res = py_connectivity.fetch_result_set_proc('sp_order_complete', (
+        print_res = py_connectivity.fetch_result_set_proc('sp_order_complete', (
             order_id, order_value, parcel_charge, c_gst, s_gst, total, discount, grand_total, d_percent, d_ref,
-            d_person, None), request_header)
-        return {"val": 1, "message": "Order has been completed successfully", "output_detail": get_print_res(request_header, res[-1])}
+            d_person, None, None), request_header)
+        return {"val": 1, "message": "Order has been completed successfully", "output_detail": json.loads(print_res[-1])}
     except Exception as e:
         print("fn_order_complete " + str(e))
         return {"val": 0, "message": "Something went wrong"}
@@ -170,8 +171,8 @@ def fn_remove_items(request_header, request):
     order_id = request.get("order_id")
     item_ids = request.get("item_ids")
     try:
-        py_connectivity.fetch_result_set_proc('sp_orderitem_remove', (order_id, item_ids, None), request_header)
-        return {"val": 1, "message": "Order items have been removed successfully", "output_detail": get_print_item_remove_res(request_header, order_id)}
+        print_res = py_connectivity.fetch_result_set_proc('sp_orderitem_remove', (order_id, item_ids, None, None), request_header)
+        return {"val": 1, "message": "Order items have been removed successfully", "output_detail": json.loads(print_res[-1])}
     except Exception as e:
         print("fn_remove_items " + str(e))
         return {"val": 0, "message": "Something went wrong"}
@@ -190,8 +191,8 @@ def get_print_item_remove_res(request_header, order_id):
 def fn_cancel_order(request_header, request):
     order_id = request.get("order_id")
     try:
-        py_connectivity.fetch_result_set_proc('sp_order_cancel', (order_id, None), request_header)
-        return {"val": 1, "message": "Order have been cancelled successfully", "output_detail": get_print_item_remove_res(request_header, order_id)}
+        print_res = py_connectivity.fetch_result_set_proc('sp_order_cancel', (order_id, None, None), request_header)
+        return {"val": 1, "message": "Order have been cancelled successfully", "output_detail": json.loads(print_res[-1])}
     except Exception as e:
         print("fn_remove_items " + str(e))
         return {"val": 0, "message": "Something went wrong"}
