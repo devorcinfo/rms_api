@@ -2,7 +2,7 @@
 from connectivity import py_connectivity
 from dotenv import load_dotenv
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, date
 env_path = str(Path(__file__).absolute().parents[1] / "config.env")
 load_dotenv(env_path)
 
@@ -29,11 +29,19 @@ def fn_add_purchase(request_header, request):
     try:
         dt = datetime.fromisoformat(request['Date'].replace("Z", "+00:00"))
         date_only = dt.date()
-        py_connectivity.fetch_result_set_proc('sp_investment', (date_only, request['InvestmentPrice']), request_header)
-        return {"rval": 1, "message": "Your response have been updated successfully"}
+        if date_only > date.today():
+            return {"rval": 0, "message": "Please provide a valid date"}
+
+        py_connectivity.fetch_result_set_proc(
+            'sp_investment',
+            (date_only, request['InvestmentPrice']),
+            request_header
+        )
+        return {"rval": 1, "message": "Investment recorded successfully."}
+
     except Exception as e:
         print("fn_add_purchase " + str(e))
-        return {"val": 0, "message": "Something went wrong"}
+        return {"rval": 0, "message": "Something went wrong while processing your request."}
 
 
 def check_file_type(file, file_type):
