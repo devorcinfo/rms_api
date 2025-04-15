@@ -28,7 +28,6 @@ def exec_qry(query, request_header):
         cursor = connection.cursor()
         cursor.execute(query)
         connection.commit()
-        connection.close()
     return cursor.rowcount
 
 

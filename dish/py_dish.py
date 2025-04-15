@@ -123,8 +123,7 @@ def fn_qty_update(request_header, request):
     dish_id = request.get("dish_id")
     qty = request.get("qty")
     try:
-        sql = f"update dish_items set avail_qty={qty}  where dish_id={dish_id}"
-        result = py_connectivity.exec_qry(sql, request_header)
+        result = py_connectivity.fetch_result_set_proc('sp_update_dish_qty', (dish_id, qty), request_header)
         return {"val": 1, "message": "Item quantity have been updated successfully"}
     except Exception as e:
         print("fn_qty_update " + str(e))
@@ -136,7 +135,7 @@ def fn_dishtype_temp_delete(request_header, request):
     status = request.get("status")
     try:
         sql = f"update dish_types set is_active= {status} where type_id={type_id}"
-        result = py_connectivity.exec_qry(sql, request_header)
+        py_connectivity.exec_qry(sql, request_header)
         return {"val": 1, "message": "Status have been updated successfully"}
     except Exception as e:
         print("fn_dishtype_temp_delete " + str(e))
